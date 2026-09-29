@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Playwright MCP Test Page</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: Georgia, "Times New Roman", serif;
+      color: #252923;
+      background: #f2f2e9;
+    }
+    * { box-sizing: border-box; }
+    body {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 32px 20px;
+    }
+    main { border-top: 5px solid #bd4a2c; padding-top: 18px; }
+    h1 { margin: 0; font-size: 2rem; }
+    p { line-height: 1.5; }
+    section { border-top: 1px solid #b9b9ad; margin-top: 28px; padding-top: 18px; }
+    h2 { margin: 0 0 12px; font-size: 1.25rem; }
+    button, input { font: inherit; }
+    button {
+      border: 1px solid #252923;
+      border-radius: 3px;
+      background: #252923;
+      color: white;
+      min-height: 42px;
+      padding: 8px 14px;
+      cursor: pointer;
+    }
+    button:hover { background: #bd4a2c; border-color: #bd4a2c; }
+    input[type="text"] { min-height: 42px; max-width: 100%; padding: 8px; }
+    output, [role="status"] { display: block; min-height: 1.5em; margin-top: 8px; }
+    label { display: inline-flex; align-items: center; gap: 8px; }
+    .delayed { color: #245d43; font-weight: bold; }
+    @media (max-width: 480px) { body { padding: 22px 16px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Playwright MCP Test Page</h1>
+    <p>This page provides predictable controls and visible state for browser automation checks.</p>
+
+    <section aria-labelledby="counter-heading">
+      <h2 id="counter-heading">Counter</h2>
+      <p>Count: <output id="count" data-testid="count" aria-live="polite">0</output></p>
+      <button id="increment" type="button" aria-label="Increment counter">Increment</button>
+    </section>
+
+    <section aria-labelledby="form-heading">
+      <h2 id="form-heading">Form</h2>
+      <form id="greeting-form">
+        <label for="name">Name</label>
+        <input id="name" name="name" type="text" autocomplete="off" required>
+        <button type="submit">Submit greeting</button>
+      </form>
+      <p id="greeting" role="status" data-testid="greeting" aria-live="polite">No greeting submitted.</p>
+    </section>
+
+    <section aria-labelledby="preference-heading">
+      <h2 id="preference-heading">Preference</h2>
+      <label><input id="updates" type="checkbox"> Receive updates</label>
+      <p id="preference-state" data-testid="preference-state">Updates are off.</p>
+    </section>
+
+    <section aria-labelledby="async-heading">
+      <h2 id="async-heading">Delayed content</h2>
+      <p id="loading-state" role="status" aria-live="polite">Loading delayed result...</p>
+      <p id="delayed-result" class="delayed" data-testid="delayed-result" hidden>Delayed result is ready.</p>
+    </section>
+  </main>
+
+  <script>
+    const countOutput = document.querySelector("#count");
+    let count = 0;
+
+    document.querySelector("#increment").addEventListener("click", () => {
+      count += 1;
+      countOutput.textContent = String(count);
+    });
+
+    document.querySelector("#greeting-form").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const name = new FormData(event.currentTarget).get("name").trim();
+      document.querySelector("#greeting").textContent = `Hello, ${name}!`;
+    });
+
+    document.querySelector("#updates").addEventListener("change", (event) => {
+      document.querySelector("#preference-state").textContent = event.currentTarget.checked
+        ? "Updates are on."
+        : "Updates are off.";
+    });
+
+    window.setTimeout(() => {
+      document.querySelector("#loading-state").textContent = "Loading complete.";
+      document.querySelector("#delayed-result").hidden = false;
+    }, 700);
+  </script>
+</body>
+</html>
