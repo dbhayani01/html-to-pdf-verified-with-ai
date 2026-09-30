@@ -1,0 +1,16 @@
+{
+  "name": "html-to-pdf-ai",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "install:firefox": "playwright install firefox",
+    "install:browsers": "playwright install chromium firefox webkit",
+    "install:chrome": "playwright install chrome",
+    "install:edge": "playwright install msedge",
+    "e2e:playwright-mcp": "node playwright_mcp_e2e.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/client": "^2.2.0",
+    "@playwright/mcp": "^0.0.83"
+  }
+}
