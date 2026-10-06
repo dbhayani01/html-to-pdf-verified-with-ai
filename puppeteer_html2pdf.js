@@ -1,7 +1,7 @@
-const fs = require("node:fs/promises");
-const path = require("node:path");
-const { pathToFileURL } = require("node:url");
-const puppeteer = require("puppeteer");
+import fs from "node:fs/promises";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
+import puppeteer from "puppeteer";
 
 function parseArgs(args) {
   const positional = [];

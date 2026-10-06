@@ -1,52 +1,308 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<style>
-  @page { size: A4; margin: 20mm; }
-  body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #1a1a2e; }
-  .header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white; padding: 24px; border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-  }
-  .header h1 { margin: 0; font-size: 28px; letter-spacing: 0.5px; }
-  .grid {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
-    margin-top: 24px;
-  }
-  .card {
-    border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-  }
-  .card h3 { margin-top: 0; color: #764ba2; }
-  .badge {
-    display: inline-block; background: #ffb703; color: #1a1a2e;
-    padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: bold;
-  }
-  table { width: 100%; border-collapse: collapse; margin-top: 24px; }
-  th { background: #1a1a2e; color: white; padding: 8px; text-align: left; }
-  td { padding: 8px; border-bottom: 1px solid #eee; }
-  tr:nth-child(even) { background: #f7f7fb; }
-  .footer { margin-top: 32px; font-size: 10px; color: #999; text-align: center; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Northstar | Quarterly Sales Report</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17243a;
+      --muted: #6b7890;
+      --line: #dce4ef;
+      --blue: #3157d5;
+      --cyan: #1aa6a6;
+      --coral: #f2765b;
+      --paper: #fff;
+      --wash: #f1f5fb;
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      color: var(--ink);
+      background: #e8edf5;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 28px; }
+    .report { max-width: 1100px; margin: 0 auto; }
+    .page {
+      position: relative;
+      min-height: 960px;
+      margin: 0 auto 28px;
+      padding: 42px 48px;
+      overflow: hidden;
+      background: var(--paper);
+      border: 1px solid #dce4ef;
+      border-radius: 18px;
+      box-shadow: 0 18px 55px #2034511c;
+    }
+    .page::before {
+      position: absolute;
+      z-index: 0;
+      top: -150px;
+      right: -100px;
+      width: 330px;
+      height: 330px;
+      border: 1px solid #3157d51c;
+      border-radius: 50%;
+      box-shadow: 0 0 0 28px #3157d508, 0 0 0 58px #3157d505;
+      content: "";
+      pointer-events: none;
+    }
+    .page > * { position: relative; z-index: 1; }
+    .masthead, .section-heading, .footer, .controls, .legend, .inline-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: .12em; }
+    .brand-mark {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      border-radius: 10px;
+      color: white;
+      background: linear-gradient(145deg, var(--blue), #7c68eb);
+      box-shadow: 0 6px 14px #3157d544;
+    }
+    .eyebrow { color: var(--blue); font-size: 10px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+    .report-id { color: var(--muted); font-size: 10px; letter-spacing: .08em; text-align: right; text-transform: uppercase; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { max-width: 650px; margin: 36px 0 12px; font-size: 42px; line-height: 1.04; letter-spacing: -.045em; }
+    h2 { margin: 0; font-size: 23px; letter-spacing: -.025em; }
+    h3 { margin-bottom: 8px; font-size: 13px; }
+    .lede { max-width: 650px; color: var(--muted); font-size: 14px; line-height: 1.7; }
+    .controls { justify-content: flex-start; margin: 20px 0 22px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: #f8faff; }
+    .controls label { color: var(--muted); font-size: 11px; font-weight: 700; }
+    select, button { min-height: 34px; padding: 7px 11px; border: 1px solid #cbd6e6; border-radius: 8px; font: inherit; font-size: 11px; }
+    select { color: var(--ink); background: white; }
+    button { border-color: var(--blue); color: white; background: var(--blue); cursor: pointer; }
+    button:hover { background: #2445b4; }
+    .metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .metric {
+      position: relative;
+      min-height: 110px;
+      padding: 15px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: linear-gradient(145deg, #fff, #f4f7fc);
+      box-shadow: 0 5px 16px #2034510b;
+    }
+    .metric::after { position: absolute; right: -18px; bottom: -34px; width: 82px; height: 82px; border: 12px solid #3157d510; border-radius: 50%; content: ""; }
+    .metric-label { display: block; margin-bottom: 13px; color: var(--muted); font-size: 9px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+    .metric strong { display: block; font-size: 23px; letter-spacing: -.04em; }
+    .metric small { display: block; margin-top: 5px; color: var(--cyan); font-size: 9px; font-weight: 700; }
+    .dashboard { display: grid; grid-template-columns: 1.25fr .75fr; gap: 14px; margin-top: 16px; }
+    .panel { padding: 17px; border: 1px solid var(--line); border-radius: 13px; background: white; box-shadow: 0 7px 20px #2034510a; }
+    .panel-title { margin-bottom: 16px; }
+    .panel-title p { margin: 4px 0 0; color: var(--muted); font-size: 10px; }
+    .bars { display: grid; gap: 11px; }
+    .bar-row { display: grid; grid-template-columns: 78px 1fr 55px; align-items: center; gap: 9px; font-size: 10px; }
+    .bar-track { height: 9px; overflow: hidden; border-radius: 20px; background: #edf1f7; }
+    .bar-fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--blue), #7c68eb); }
+    .bar-value { color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; }
+    .donut-wrap { display: grid; min-height: 160px; place-items: center; }
+    .donut { display: grid; width: 132px; height: 132px; place-items: center; border-radius: 50%; background: conic-gradient(var(--blue) 0 38%, var(--cyan) 38% 65%, #f2ae49 65% 82%, var(--coral) 82% 100%); box-shadow: 0 8px 20px #20345120; }
+    .donut::before { width: 86px; height: 86px; border-radius: 50%; background: white; content: ""; grid-area: 1 / 1; }
+    .donut-copy { z-index: 1; grid-area: 1 / 1; text-align: center; }
+    .donut-copy strong { display: block; font-size: 20px; }
+    .donut-copy span { color: var(--muted); font-size: 8px; text-transform: uppercase; }
+    .legend { justify-content: center; flex-wrap: wrap; gap: 8px 13px; margin-top: 4px; color: var(--muted); font-size: 9px; }
+    .legend span { display: inline-flex; align-items: center; gap: 5px; }
+    .swatch { width: 7px; height: 7px; border-radius: 2px; background: var(--blue); }
+    .swatch.cyan { background: var(--cyan); } .swatch.gold { background: #f2ae49; } .swatch.coral { background: var(--coral); }
+    .callout { display: grid; grid-template-columns: 34px 1fr; gap: 11px; margin-top: 14px; padding: 13px; border: 1px solid #cbece6; border-radius: 12px; background: linear-gradient(110deg, #effbf8, #f9fffd); }
+    .callout-icon { display: grid; width: 32px; height: 32px; place-items: center; border-radius: 9px; color: #087d71; background: #d4f2ec; font-weight: 800; }
+    .callout p { margin: 3px 0 0; color: #536b72; font-size: 10px; line-height: 1.55; }
+    .footer { margin-top: 20px; padding-top: 11px; border-top: 1px solid var(--line); color: #8b97a9; font-size: 8px; }
+    .section-heading { margin: 26px 0 16px; }
+    .section-heading p { margin: 5px 0 0; color: var(--muted); font-size: 10px; }
+    .badge { padding: 6px 9px; border: 1px solid #dbe3f2; border-radius: 99px; color: var(--blue); background: #f4f7ff; font-size: 9px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+    .region-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .region-card { position: relative; min-height: 145px; padding: 16px; overflow: hidden; border: 1px solid var(--line); border-radius: 13px; background: linear-gradient(135deg, white 45%, #f1f5ff); }
+    .region-card::after { position: absolute; right: -22px; bottom: -42px; width: 120px; height: 120px; border: 15px solid #3157d509; border-radius: 50%; content: ""; }
+    .region-card header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 19px; }
+    .region-name { font-size: 14px; font-weight: 800; }
+    .region-rank { color: var(--muted); font-size: 9px; }
+    .region-total { font-size: 25px; font-weight: 800; letter-spacing: -.04em; }
+    .region-caption { margin-top: 3px; color: var(--muted); font-size: 9px; }
+    .sparkline { display: flex; align-items: end; gap: 4px; height: 27px; margin-top: 12px; }
+    .sparkline i { flex: 1; min-width: 5px; border-radius: 3px 3px 0 0; background: linear-gradient(180deg, #8da4ff, var(--blue)); }
+    .table-wrap { margin-top: 16px; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; }
+    table { width: 100%; border-collapse: collapse; font-size: 10px; }
+    thead { color: white; background: linear-gradient(90deg, #263e76, #3157d5); }
+    th, td { padding: 10px 11px; border-bottom: 1px solid #e7ecf3; text-align: left; }
+    th { font-size: 8px; letter-spacing: .08em; text-transform: uppercase; }
+    tbody tr:nth-child(even) { background: #f7f9fc; }
+    tbody tr:hover { background: #eef3ff; }
+    td.numeric { font-variant-numeric: tabular-nums; text-align: right; }
+    .trend { color: #07806e; font-weight: 800; }
+    .note-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 11px; margin-top: 15px; }
+    .note-card { padding: 13px; border-left: 3px solid var(--cyan); border-radius: 0 9px 9px 0; background: #f3faf9; }
+    .note-card:nth-child(2) { border-color: #f2ae49; background: #fffbf3; }
+    .note-card:nth-child(3) { border-color: var(--coral); background: #fff7f4; }
+    .note-card p { margin: 0; color: var(--muted); font-size: 9px; line-height: 1.5; }
+    .page-number { color: var(--blue); font-weight: 800; }
+    @media screen and (max-width: 760px) {
+      body { padding: 10px; }
+      .page { min-height: auto; margin-bottom: 14px; padding: 25px 20px; border-radius: 13px; }
+      h1 { font-size: 34px; }
+      .metric-grid { grid-template-columns: repeat(2, 1fr); }
+      .dashboard { grid-template-columns: 1fr; }
+      .region-grid, .note-grid { grid-template-columns: 1fr; }
+      .masthead, .section-heading { align-items: flex-start; }
+    }
+    @media print {
+      @page { size: A4; margin: 12mm 13mm; }
+      :root { background: white; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      body { padding: 0; background: white; }
+      .report { max-width: none; }
+      .page { width: auto; min-height: 0; margin: 0; padding: 0; overflow: visible; border: 0; border-radius: 0; box-shadow: none; break-after: page; page-break-after: always; }
+      .page:last-child { break-after: auto; page-break-after: auto; }
+      .controls, button { display: none !important; }
+      .metric, .panel, .region-card, .callout, .note-card, tr { break-inside: avoid; page-break-inside: avoid; }
+      thead { display: table-header-group; }
+      tr { break-inside: avoid; page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
 </head>
 <body>
-  <div class="header">
-    <h1>Quarterly Report — Heavy CSS Test</h1>
-    <p>Generated to validate PDF rendering fidelity</p>
-  </div>
-  <div class="grid">
-    <div class="card"><h3>Revenue</h3><span class="badge">UP 12%</span><p>₹42,00,000</p></div>
-    <div class="card"><h3>Users</h3><span class="badge">UP 8%</span><p>18,204</p></div>
-    <div class="card"><h3>Churn</h3><span class="badge">DOWN 2%</span><p>1.8%</p></div>
-  </div>
-  <table>
-    <tr><th>Item</th><th>Q1</th><th>Q2</th></tr>
-    <tr><td>Product A</td><td>120</td><td>140</td></tr>
-    <tr><td>Product B</td><td>90</td><td>95</td></tr>
-    <tr><td>Product C</td><td>60</td><td>75</td></tr>
-  </table>
-  <div class="footer">Confidential — page rendered for verification pipeline test</div>
+  <main class="report">
+    <section class="page" aria-labelledby="report-title">
+      <header class="masthead">
+        <div class="brand"><span class="brand-mark">N</span><span>NORTHSTAR</span></div>
+        <div class="report-id">Commercial intelligence<br>Q2 FY2026 · Report 06</div>
+      </header>
+      <p class="eyebrow" style="margin-top:38px">Quarterly performance brief</p>
+      <h1 id="report-title">Revenue momentum, built on regional strength.</h1>
+      <p class="lede">A field-ready view of product sales, regional contribution, and operating signals across the second quarter. Use the live filter to inspect a single region before printing.</p>
+
+      <div class="controls" aria-label="Report controls">
+        <label for="regionFilter">Filter the report</label>
+        <select id="regionFilter" onchange="filterData()">
+          <option value="All">All regions</option><option value="North">North</option>
+          <option value="South">South</option><option value="East">East</option><option value="West">West</option>
+        </select>
+        <button type="button" onclick="window.print()">Print report</button>
+        <span class="report-id">Filter updates all summaries and tables</span>
+      </div>
+
+      <div class="metric-grid">
+        <article class="metric"><span class="metric-label">Recognized revenue</span><strong id="totalRevenue">$0</strong><small>▲ 12.8% vs. prior quarter</small></article>
+        <article class="metric"><span class="metric-label">Units shipped</span><strong id="totalUnits">0</strong><small>▲ 8.4% vs. prior quarter</small></article>
+        <article class="metric"><span class="metric-label">Active regions</span><strong id="regionCount">4</strong><small>All territories contributing</small></article>
+        <article class="metric"><span class="metric-label">Average order value</span><strong id="averageOrder">$0</strong><small>▲ 4.1% year over year</small></article>
+      </div>
+
+      <div class="dashboard">
+        <article class="panel">
+          <div class="panel-title"><h3>Revenue by region</h3><p>Share of recognized quarterly revenue</p></div>
+          <div class="bars" id="regionBars"></div>
+        </article>
+        <article class="panel">
+          <div class="panel-title"><h3>Revenue mix</h3><p>Contribution by territory</p></div>
+          <div class="donut-wrap"><div class="donut"><div class="donut-copy"><strong id="mixTotal">$0</strong><span>total sales</span></div></div></div>
+          <div class="legend"><span><i class="swatch"></i>North</span><span><i class="swatch cyan"></i>South</span><span><i class="swatch gold"></i>East</span><span><i class="swatch coral"></i>West</span></div>
+        </article>
+      </div>
+      <aside class="callout"><span class="callout-icon">↗</span><div><strong>Executive readout</strong><p>North leads this quarter on revenue, while West combines the highest shipment volume with a balanced product mix. The regional detail and transaction ledger follow on the next pages.</p></div></aside>
+      <footer class="footer"><span>CONFIDENTIAL · NORTHSTAR COMMERCIAL</span><span>Q2 FY2026 <b class="page-number">01 / 03</b></span></footer>
+    </section>
+
+    <section class="page" aria-labelledby="regions-title">
+      <header class="masthead"><div class="brand"><span class="brand-mark">N</span><span>NORTHSTAR</span></div><div class="report-id">Territory review · Q2 FY2026</div></header>
+      <div class="section-heading" style="margin-top:38px">
+        <div><p class="eyebrow">01 / Regional performance</p><h2 id="regions-title">Four markets, distinct growth stories.</h2><p>Revenue, volume, and weekly pacing by sales territory.</p></div>
+        <span class="badge">Quarter closed · June 30</span>
+      </div>
+      <div class="region-grid" id="regionCards"></div>
+      <article class="panel" style="margin-top:15px">
+        <div class="panel-title"><h3>Weekly revenue pacing</h3><p>Illustrative indexed performance across the 13-week quarter</p></div>
+        <div class="bars">
+          <div class="bar-row"><strong>Weeks 1–4</strong><div class="bar-track"><div class="bar-fill" style="width:62%"></div></div><span class="bar-value">$31.8k</span></div>
+          <div class="bar-row"><strong>Weeks 5–8</strong><div class="bar-track"><div class="bar-fill" style="width:78%;background:linear-gradient(90deg,#1aa6a6,#6ed2bc)"></div></div><span class="bar-value">$40.1k</span></div>
+          <div class="bar-row"><strong>Weeks 9–13</strong><div class="bar-track"><div class="bar-fill" style="width:100%;background:linear-gradient(90deg,#f2765b,#f5b05e)"></div></div><span class="bar-value">$51.4k</span></div>
+        </div>
+      </article>
+      <div class="note-grid">
+        <article class="note-card"><h3>North · Scale</h3><p>Premium peripherals drove the largest value contribution and steady account expansion.</p></article>
+        <article class="note-card"><h3>East · Mix</h3><p>Display products generated the strongest ticket size; supply availability remains key.</p></article>
+        <article class="note-card"><h3>West · Velocity</h3><p>High unit throughput reflects broad adoption of accessories and audio products.</p></article>
+      </div>
+      <footer class="footer"><span>Source: internal sample sales ledger · values shown in USD</span><span>Q2 FY2026 <b class="page-number">02 / 03</b></span></footer>
+    </section>
+
+    <section class="page" aria-labelledby="ledger-title">
+      <header class="masthead"><div class="brand"><span class="brand-mark">N</span><span>NORTHSTAR</span></div><div class="report-id">Appendix · Product ledger</div></header>
+      <div class="section-heading" style="margin-top:38px">
+        <div><p class="eyebrow">02 / Product detail</p><h2 id="ledger-title">The transactions behind the trend.</h2><p>Product-level shipment counts and recognized revenue. Rows respond to the region selector on page one.</p></div>
+        <span class="badge">6 product lines</span>
+      </div>
+      <div class="inline-meta"><strong>Quarter-to-date sales ledger</strong><span class="report-id" id="ledgerRegion">ALL REGIONS</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Product</th><th>Territory</th><th>Units</th><th>Revenue</th><th>QoQ</th></tr></thead>
+          <tbody id="reportData"></tbody>
+        </table>
+      </div>
+      <div class="dashboard" style="margin-top:16px">
+        <article class="panel"><div class="panel-title"><h3>Commercial notes</h3><p>Operational cues for the next planning cycle</p></div>
+          <div class="callout" style="margin-top:0"><span class="callout-icon">1</span><div><strong>Protect availability</strong><p>Maintain buffer stock on the 4K monitor line ahead of the seasonal refresh.</p></div></div>
+          <div class="callout"><span class="callout-icon">2</span><div><strong>Extend attachment</strong><p>Bundle hubs and keyboards with workstation refresh opportunities.</p></div></div>
+        </article>
+        <article class="panel"><div class="panel-title"><h3>Method notes</h3><p>Reading this sample</p></div><p class="lede" style="font-size:10px">Revenue values are illustrative and shown in nominal USD. Units represent shipped product counts. Quarterly comparisons are sample indicators designed to exercise report typography, data density, and print pagination.</p></article>
+      </div>
+      <footer class="footer"><span>NORTHSTAR · SALES OPERATIONS</span><span>Q2 FY2026 <b class="page-number">03 / 03</b></span></footer>
+    </section>
+  </main>
+
+  <script>
+    const salesData = [
+      { product: "Alpha Wireless Mouse", region: "North", units: 150, revenue: 3750, growth: 9 },
+      { product: "Beta Mechanical Keyboard", region: "South", units: 80, revenue: 7200, growth: 14 },
+      { product: "Gamma 4K Monitor", region: "East", units: 45, revenue: 15750, growth: 18 },
+      { product: "Delta USB-C Hub", region: "West", units: 210, revenue: 5250, growth: 11 },
+      { product: "Epsilon Ergonomic Chair", region: "North", units: 30, revenue: 9000, growth: 7 },
+      { product: "Zeta Noise-Cancelling Headphones", region: "West", units: 95, revenue: 14250, growth: 16 }
+    ];
+    const regions = ["North", "South", "East", "West"];
+    const currency = (value) => `$${value.toLocaleString("en-US")}`;
+
+    function renderReport(data) {
+      const revenue = data.reduce((sum, item) => sum + item.revenue, 0);
+      const units = data.reduce((sum, item) => sum + item.units, 0);
+      const activeRegions = regions.filter((region) => data.some((item) => item.region === region));
+      document.getElementById("totalRevenue").textContent = currency(revenue);
+      document.getElementById("totalUnits").textContent = units.toLocaleString("en-US");
+      document.getElementById("regionCount").textContent = String(activeRegions.length);
+      document.getElementById("averageOrder").textContent = currency(data.length ? Math.round(revenue / data.length) : 0);
+      document.getElementById("mixTotal").textContent = currency(revenue);
+      document.getElementById("ledgerRegion").textContent = document.getElementById("regionFilter").value.toUpperCase() + " REGION" + (document.getElementById("regionFilter").value === "All" ? "S" : "");
+
+      const totals = Object.fromEntries(regions.map((region) => [region, data.filter((item) => item.region === region).reduce((sum, item) => sum + item.revenue, 0)]));
+      document.getElementById("regionBars").innerHTML = regions.map((region) => {
+        const amount = totals[region];
+        const width = revenue ? Math.round((amount / revenue) * 100) : 0;
+        return `<div class="bar-row"><strong>${region}</strong><div class="bar-track"><div class="bar-fill" style="width:${width}%"></div></div><span class="bar-value">${currency(amount)}</span></div>`;
+      }).join("");
+
+      document.getElementById("regionCards").innerHTML = activeRegions.map((region, index) => {
+        const amount = totals[region];
+        const regionUnits = data.filter((item) => item.region === region).reduce((sum, item) => sum + item.units, 0);
+        const heights = [34, 51, 45, 67, 59, 82, 72, 96].map((height, barIndex) => Math.max(12, height - index * 4 + (barIndex % 3) * 3));
+        return `<article class="region-card"><header><span class="region-name">${region}</span><span class="region-rank">TERRITORY 0${index + 1}</span></header><div class="region-total">${currency(amount)}</div><div class="region-caption">${regionUnits.toLocaleString("en-US")} units · ${revenue ? Math.round(amount / revenue * 100) : 0}% of selected revenue</div><div class="sparkline" aria-label="Illustrative weekly trend">${heights.map((height) => `<i style="height:${height}%"></i>`).join("")}</div></article>`;
+      }).join("");
+
+      document.getElementById("reportData").innerHTML = data.map((item) => `<tr><td><strong>${item.product}</strong></td><td>${item.region}</td><td class="numeric">${item.units.toLocaleString("en-US")}</td><td class="numeric">${currency(item.revenue)}</td><td class="numeric trend">+${item.growth}%</td></tr>`).join("");
+    }
+
+    function filterData() {
+      const selectedRegion = document.getElementById("regionFilter").value;
+      renderReport(selectedRegion === "All" ? salesData : salesData.filter((item) => item.region === selectedRegion));
+    }
+
+    renderReport(salesData);
+  </script>
 </body>
 </html>

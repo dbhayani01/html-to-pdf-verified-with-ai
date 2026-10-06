@@ -1,0 +1,12 @@
+{
+  "containerOverrides": [
+    {
+      "name": "puppeteer-html-to-pdf",
+      "environment": [
+        { "name": "INPUT_HTML_PATH", "value": "/work/input/report.html" },
+        { "name": "OUTPUT_DIR", "value": "/work/output" },
+        { "name": "PDF_DPI", "value": "150" }
+      ]
+    }
+  ]
+}

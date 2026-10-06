@@ -1,0 +1,30 @@
+{
+  "family": "html-to-pdf-puppeteer",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "1024",
+  "memory": "2048",
+  "executionRoleArn": "arn:aws:iam::REPLACE_WITH_ACCOUNT_ID:role/ecsTaskExecutionRole",
+  "containerDefinitions": [
+    {
+      "name": "puppeteer-html-to-pdf",
+      "image": "REPLACE_WITH_ACCOUNT_ID.dkr.ecr.REPLACE_WITH_REGION.amazonaws.com/html-to-pdf-puppeteer:latest",
+      "essential": true,
+      "environment": [
+        { "name": "AWS_REGION", "value": "REPLACE_WITH_REGION" },
+        { "name": "INPUT_HTML_PATH", "value": "/work/input/report.html" },
+        { "name": "OUTPUT_DIR", "value": "/work/output" },
+        { "name": "PDF_FORMAT", "value": "A4" },
+        { "name": "PDF_DPI", "value": "150" }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/html-to-pdf-puppeteer",
+          "awslogs-region": "REPLACE_WITH_REGION",
+          "awslogs-stream-prefix": "render"
+        }
+      }
+    }
+  ]
+}

@@ -4,7 +4,7 @@ Standalone HTML -> PDF -> PNG -> Groq verification pipeline.
 This version is intentionally limited to the Fulgur backend.
 
 Usage:
-  python pipeline_runner.py sample_5342.html
+  python html2pdf.py sample.html
 """
 
 import argparse
@@ -82,6 +82,12 @@ def verify_page_with_groq(image_path: Path, prompt: str, client: Groq) -> str:
 
 
 def run_pipeline(html_path: Path, engine: str, dpi: int, prompt: str) -> None:
+    html_path = html_path.resolve()
+    if not html_path.is_file():
+        raise FileNotFoundError(f"HTML file not found: {html_path}")
+    if dpi <= 0:
+        raise ValueError("DPI must be greater than zero.")
+
     work_dir = html_path.parent
     pdf_path = work_dir / f"{html_path.stem}_{engine}.pdf"
     img_dir = work_dir / f"{html_path.stem}_{engine}_pages"
@@ -121,4 +127,7 @@ if __name__ == "__main__":
         ),
     )
     args = parser.parse_args()
-    run_pipeline(args.html_file, "fulgur", args.dpi, args.prompt)
+    try:
+        run_pipeline(args.html_file, "fulgur", args.dpi, args.prompt)
+    except (FileNotFoundError, RuntimeError, ValueError) as error:
+        parser.error(str(error))

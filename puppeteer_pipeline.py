@@ -70,6 +70,8 @@ def run_pipeline(
     html_path = html_path.resolve()
     if not html_path.is_file():
         raise FileNotFoundError(f"HTML file not found: {html_path}")
+    if dpi <= 0:
+        raise ValueError("DPI must be greater than zero.")
 
     pdf_path = html_path.with_name(f"{html_path.stem}_puppeteer.pdf")
     image_dir = html_path.with_name(f"{html_path.stem}_puppeteer_pages")
@@ -108,7 +110,7 @@ def main() -> None:
 
     try:
         run_pipeline(args.html_file, args.dpi, args.prompt, args.wait_for_selector)
-    except (FileNotFoundError, RuntimeError) as error:
+    except (FileNotFoundError, RuntimeError, ValueError) as error:
         parser.error(str(error))
 
 

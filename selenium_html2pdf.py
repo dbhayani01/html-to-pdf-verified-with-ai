@@ -17,7 +17,7 @@ Standalone HTML -> PDF -> PNG -> Groq verification pipeline.
 This version uses the Headless Chrome (Selenium) backend to support JavaScript graphs.
 
 Usage:
-  python pipeline_runner.py sample_5342.html
+  python selenium_html2pdf.py sample.html
 """
 
 # Correct model string for the Groq vision endpoint
@@ -98,6 +98,12 @@ def verify_page_with_groq(image_path: Path, prompt: str, client: Groq) -> str:
 
 
 def run_pipeline(html_path: Path, engine: str, dpi: int, prompt: str) -> None:
+    html_path = html_path.resolve()
+    if not html_path.is_file():
+        raise FileNotFoundError(f"HTML file not found: {html_path}")
+    if dpi <= 0:
+        raise ValueError("DPI must be greater than zero.")
+
     work_dir = html_path.parent
     pdf_path = work_dir / f"{html_path.stem}_{engine}.pdf"
     img_dir = work_dir / f"{html_path.stem}_{engine}_pages"
@@ -138,5 +144,7 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     
-    # Changed default string token parameter here from "fulgur" to "selenium"
-    run_pipeline(args.html_file, "selenium", args.dpi, args.prompt)
+    try:
+        run_pipeline(args.html_file, "selenium", args.dpi, args.prompt)
+    except (FileNotFoundError, RuntimeError, ValueError) as error:
+        parser.error(str(error))

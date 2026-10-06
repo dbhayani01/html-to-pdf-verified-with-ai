@@ -1,0 +1,12 @@
+{
+  "containerOverrides": [
+    {
+      "name": "puppeteer-html-to-pdf",
+      "environment": [
+        { "name": "INPUT_BUCKET", "value": "REPLACE_WITH_INPUT_BUCKET" },
+        { "name": "INPUT_KEY", "value": "reports/quarterly-report.html" },
+        { "name": "PDF_DPI", "value": "150" }
+      ]
+    }
+  ]
+}
