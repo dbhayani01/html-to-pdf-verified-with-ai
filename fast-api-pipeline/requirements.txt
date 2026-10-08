@@ -1,0 +1,9 @@
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+python-multipart>=0.0.9
+pymupdf>=1.24.0
+groq>=0.9.0
+selenium>=4.25.0
+webdriver-manager>=4.0.2
+weasyprint>=62.1
+xhtml2pdf>=0.2.20

@@ -1,0 +1,41 @@
+{
+  "family": "html-to-pdf-fastapi",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "2048",
+  "memory": "4096",
+  "executionRoleArn": "arn:aws:iam::REPLACE_WITH_ACCOUNT_ID:role/ecsTaskExecutionRole",
+  "containerDefinitions": [
+    {
+      "name": "fast-api-pipeline",
+      "image": "REPLACE_WITH_ACCOUNT_ID.dkr.ecr.REPLACE_WITH_REGION.amazonaws.com/html-to-pdf-fastapi:latest",
+      "essential": true,
+      "portMappings": [
+        { "containerPort": 8000, "hostPort": 8000, "protocol": "tcp" }
+      ],
+      "environment": [
+        { "name": "CHROME_BINARY", "value": "/usr/bin/chromium" },
+        { "name": "CHROMEDRIVER_PATH", "value": "/usr/bin/chromedriver" },
+        { "name": "GROQ_VISION_MODEL", "value": "qwen/qwen3.8-27b" }
+      ],
+      "healthCheck": {
+        "command": [
+          "CMD-SHELL",
+          "python -c \"from urllib.request import urlopen; urlopen('http://127.0.0.1:8000/', timeout=3)\" || exit 1"
+        ],
+        "interval": 30,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 60
+      },
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/html-to-pdf-fastapi",
+          "awslogs-region": "REPLACE_WITH_REGION",
+          "awslogs-stream-prefix": "api"
+        }
+      }
+    }
+  ]
+}

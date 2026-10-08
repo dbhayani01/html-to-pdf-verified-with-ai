@@ -2,6 +2,19 @@
 
 This repository contains several small command-line pipelines for rendering a local HTML file to PDF, converting the PDF pages to PNG images, and optionally asking a Groq vision model to inspect those images for layout issues. It is a collection of alternative renderers rather than one application with a single backend.
 
+## FastAPI pipeline quick start
+
+The self-contained [`fast-api-pipeline/`](fast-api-pipeline/README.md) service has a separate renderer module for Puppeteer, Selenium/Chromium, xhtml2pdf, and WeasyPrint. It rasterizes every PDF page and returns a ZIP containing `pdf/` and `images/` folders. The homepage streams progress and shows a download button when processing is complete. The folder also includes a Dockerfile, Compose config, and ECS Fargate task definition. If `GROQ_API_KEY` is configured, it reviews each page image with Groq.
+
+```bash
+cd fast-api-pipeline
+python -m pip install -r requirements.txt
+npm install
+uvicorn fast_api_pipeline.api:app --app-dir . --host 127.0.0.1 --port 8000
+```
+
+Open `http://127.0.0.1:8000/` to submit a report and watch the processing steps; the download button appears when the ZIP is ready. The homepage uses `/` for both submission and download. Visit `http://127.0.0.1:8000/docs` for the API schema. See the [FastAPI pipeline guide](fast-api-pipeline/README.md) for request fields, dependencies, and package imports.
+
 ## How the pipelines work
 
 ```text
@@ -35,10 +48,11 @@ The browser renderers execute page JavaScript. WeasyPrint and xhtml2pdf do not e
 - [`playwright_mcp_e2e.js`](playwright_mcp_e2e.js): End-to-end MCP client that launches the Playwright MCP server, exercises the fixture controls, and asserts their accessible page state. Defaults to Firefox; supports Chromium, Firefox, WebKit, Chrome, or Edge selection.
 - [`package.json`](package.json): Root Node dependencies and setup/run commands for the Playwright MCP and local Puppeteer flows.
 - [`ecs/puppeteer-task/`](ecs/puppeteer-task/): Standalone ECS Fargate task package with a Puppeteer/Chrome container, local PDF and page-image generation, optional Groq review and final S3 export, task definition, IAM examples, and an offline Docker test pipeline.
-- [`requirements.txt`](requirements.txt): Python dependencies for PDF rasterization, optional Groq review, WeasyPrint, and xhtml2pdf. Selenium has separate optional dependencies listed below.
+- [`fast-api-pipeline/`](fast-api-pipeline/): Self-contained FastAPI service folder with separate renderer modules, PDF-to-image and Groq pipeline components, Python and Node dependency manifests, Dockerfile, Compose config, and an ECS Fargate task-definition example.
+- [`requirements.txt`](requirements.txt): Python dependencies for the command-line PDF pipelines and optional Groq review.
 - [`.gitignore`](.gitignore): Ignores generated PDFs, JPG/PNG files, and Python bytecode directories.
 
-The Selenium flow has extra optional Python dependencies (`selenium` and `webdriver-manager`) installed separately below. The repository does not include generated PDFs or page images.
+The repository does not include generated PDFs or page images.
 
 ## Requirements and setup
 
@@ -58,11 +72,7 @@ The project uses Node.js ES modules (`"type": "module"` in `package.json`); both
 
 The Playwright MCP end-to-end flow uses the dependencies declared in `package.json`; see its dedicated setup steps below. The ECS task has its own isolated Node package and container image.
 
-For the Selenium pipeline, install Chrome and its Python packages:
-
-```bash
-python -m pip install selenium webdriver-manager
-```
+The FastAPI service has an isolated requirements file inside [`fast-api-pipeline/`](fast-api-pipeline/README.md). Its Selenium backend uses Chrome or Chromium and may download a compatible ChromeDriver unless `CHROMEDRIVER_PATH` is configured.
 
 ### Playwright MCP end-to-end flow
 
@@ -162,6 +172,10 @@ Call the Puppeteer renderer directly when only a PDF is needed:
 ```bash
 node puppeteer_html2pdf.js sample.html [output.pdf] [--wait-for-selector "#report-ready"]
 ```
+
+## Run the FastAPI service
+
+The service, renderer code, pipeline package, and dependency manifests are all contained in [`fast-api-pipeline/`](fast-api-pipeline/README.md). Follow that folder's README to install and run it. The API supports the four renderers, returns a ZIP with `pdf/` and `images/`, and optionally reviews images with Groq when configured.
 
 ## Run Puppeteer as an ECS task
 
